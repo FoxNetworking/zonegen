@@ -1,0 +1,42 @@
+ttl: 3600
+primary_nameserver: 'ns1.example.com'
+email: 'hostmaster@example.com'
+serial: 2024011201 
+domain_name: example.com
+
+records:
+  - name: 'barkbark'
+    a:
+      - 1.1.1.1    
+  - name: 'blahblah'
+    aaaa:
+      - '2001:db8::1'
+  - name: 'cawcaw'
+    caa:
+      - flags: 0
+        tag: "issue"
+        ca_domain_name: "sectigo.com"
+  - name: "meowmeow"
+    cname:
+      - "google.com"
+  - name: "blubblub"
+    mx:
+      - priority: 10
+        mail_server: 'mail.example.com'
+  - name: 'tweetweet'
+    ns:
+      - 'ns1.example.com'
+  - name: 'cluckcluck'
+    ptr:
+      - 'reverse.example.net'
+  - name: 'trottrot'
+    srv:
+      - service: "_minecraft"
+        protocol: "_tcp"
+        priority: 10
+        weight: 10
+        port: 25566
+        target: "direct.example.net"
+  - name: "oinkoink"
+    txt:
+      - "Hello, world!"
