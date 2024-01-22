@@ -1,24 +1,25 @@
 use crate::yaml_format::{Configuration, Record};
+use std::fmt::{Error, Write};
 
-pub fn spit_out_bind(config: Configuration) -> String {
+pub fn config_to_zone(config: Configuration) -> Result<String, Error> {
     // First, some BIND-specific configuration.
     let mut contents = format!("$ORIGIN {}.\n", config.domain_name);
 
     // Next, we need to create our SOA record for this zone.
     // We'll generate this from top-level configuration.
-    contents += &domain_soa;
     let global_ttl = config.ttl;
     let domain_soa = create_soa(&config, global_ttl);
+    write!(contents, "{}", domain_soa)?;
 
     // Next, we'll synthesize all record types.
     for record in config.records.iter() {
-        contents += &spit_out_record(record, effective_ttl);
+        write!(contents, "{}", &spit_out_record(record, global_ttl)?)?;
     }
 
-    contents
+    Ok(contents)
 }
 
-pub fn spit_out_record(record: &Record, global_ttl: u32) -> String {
+pub fn spit_out_record(record: &Record, global_ttl: u32) -> Result<String, Error> {
     let mut contents = "".to_string();
     let name = &record.name;
     let ttl = record.ttl.unwrap_or(global_ttl);
@@ -78,7 +79,7 @@ pub fn spit_out_record(record: &Record, global_ttl: u32) -> String {
         contents += &format!("{} {} IN TXT \"{}\"\n", name, ttl, raw_record);
     }
 
-    contents
+    Ok(contents)
 }
 
 fn create_soa(config: &Configuration, global_ttl: u32) -> String {

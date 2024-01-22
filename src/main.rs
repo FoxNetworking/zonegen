@@ -1,7 +1,7 @@
-use yaml_format::Configuration;
 use std::{env, process::exit};
+use yaml_format::Configuration;
 
-use crate::bind_format::spit_out_bind;
+use crate::bind_format::config_to_zone;
 
 mod bind_format;
 mod yaml_format;
@@ -19,5 +19,6 @@ fn main() {
         std::fs::read_to_string(input_yaml).expect("unable to read input zone YAML");
     let input: Configuration = serde_yaml::from_str(&input_contents).expect("unable to parse YAML");
 
-    println!("{}", spit_out_bind(input));
+    let zone_contents = config_to_zone(input).expect("unable to create zone file");
+    println!("{}", zone_contents);
 }
