@@ -6,9 +6,9 @@ pub fn spit_out_bind(config: Configuration) -> String {
 
     // Next, we need to create our SOA record for this zone.
     // We'll generate this from top-level configuration.
-    let effective_ttl = config.ttl.unwrap_or(3600);
-    let domain_soa = create_soa(&config, effective_ttl);
     contents += &domain_soa;
+    let global_ttl = config.ttl;
+    let domain_soa = create_soa(&config, global_ttl);
 
     // Next, we'll synthesize all record types.
     for record in config.records.iter() {

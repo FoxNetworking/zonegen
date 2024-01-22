@@ -1,9 +1,11 @@
 use serde::Deserialize;
 
 #[derive(Deserialize)]
+// We effectively synthesize a SOA record from the fields in Configuration.
 pub struct Configuration {
-    // We effectively create a SOA record from the beneath fields.
-    pub ttl: Option<u32>,
+    // Defaults to 3_600.
+    #[serde(default = "cfg_default_ttl")]
+    pub ttl: u32,
     pub primary_nameserver: String,
     pub email: String,
     pub serial: u32,
@@ -25,6 +27,10 @@ pub struct Configuration {
     // but we actually handle it as a Vec of Subdomains
     // in order to preserve and read the mapping's key.
     pub records: Vec<Record>,
+}
+
+fn cfg_default_ttl() -> u32 {
+    3_600
 }
 
 fn cfg_default_refresh() -> u32 {
