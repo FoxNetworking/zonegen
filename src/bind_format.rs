@@ -24,49 +24,41 @@ pub fn spit_out_record(record: &Record, global_ttl: u32) -> String {
     let ttl = record.ttl.unwrap_or(global_ttl);
 
     // First, handle A and AAAA records.
-    let a_records = record.a.as_deref().unwrap_or(&[]);
-    for a_record in a_records {
+    for a_record in &record.a {
         contents += &format!("{} {} IN A {}\n", name, ttl, a_record.0);
     }
 
-    let aaaa_records = record.aaaa.as_deref().unwrap_or(&[]);
-    for aaaa_record in aaaa_records {
+    for aaaa_record in &record.aaaa {
         contents += &format!("{} {} IN AAAA {}\n", name, ttl, aaaa_record.0);
     }
 
-    let cname_records = record.cname.as_deref().unwrap_or(&[]);
-    for cname_record in cname_records {
+    for cname_record in &record.cname {
         contents += &format!("{} {} IN CNAME {}.\n", name, ttl, cname_record.0);
     }
 
-    let caa_records = record.caa.as_deref().unwrap_or(&[]);
-    for caa_record in caa_records {
+    for caa_record in &record.caa {
         contents += &format!(
             "{} {} IN CAA {} {} {}\n",
             name, ttl, caa_record.flags, caa_record.tag, caa_record.ca_domain_name
         );
     }
 
-    let mx_records = record.mx.as_deref().unwrap_or(&[]);
-    for mx_record in mx_records {
+    for mx_record in &record.mx {
         contents += &format!(
             "{} {} IN MX {} {}.\n",
             name, ttl, mx_record.priority, mx_record.mail_server
         );
     }
 
-    let ns_records = record.ns.as_deref().unwrap_or(&[]);
-    for ns_record in ns_records {
+    for ns_record in &record.ns {
         contents += &format!("{} {} IN NS {}.\n", name, ttl, ns_record.0);
     }
 
-    let ptr_records = record.ptr.as_deref().unwrap_or(&[]);
-    for ptr_record in ptr_records {
+    for ptr_record in &record.ptr {
         contents += &format!("{} {} IN PTR {}.\n", name, ttl, ptr_record.0);
     }
 
-    let srv_records = record.srv.as_deref().unwrap_or(&[]);
-    for srv_record in srv_records {
+    for srv_record in &record.srv {
         contents += &format!(
             "{}.{}.{} {} IN SRV {} {} {} {}.\n",
             srv_record.service,
@@ -80,8 +72,7 @@ pub fn spit_out_record(record: &Record, global_ttl: u32) -> String {
         );
     }
 
-    let txt_records = record.txt.as_deref().unwrap_or(&[]);
-    for txt_record in txt_records {
+    for txt_record in &record.txt {
         let raw_record = &txt_record.0.replace('\n', "\\n").replace('\"', "\\\"");
 
         contents += &format!("{} {} IN TXT \"{}\"\n", name, ttl, raw_record);
@@ -101,21 +92,15 @@ fn create_soa(config: &Configuration, global_ttl: u32) -> String {
     let fixed_local_part = local_part.replace('.', "\\.");
     let effective_email = format!("{}.{}", fixed_local_part, email_domain);
 
-    // The following defaults are known-good defaults.
-    let effective_refresh = config.refresh.unwrap_or(86_400);
-    let effective_retry = config.retry.unwrap_or(7_200);
-    let effective_expire = config.expire.unwrap_or(3_600_000);
-    let effective_minimum = config.minimum.unwrap_or(172_800);
-
     format!(
         "@ {} IN SOA {}. {}. {} {} {} {} {}\n",
         global_ttl,
         primary_ns,
         effective_email,
         serial,
-        effective_refresh,
-        effective_retry,
-        effective_expire,
-        effective_minimum
+        config.refresh,
+        config.retry,
+        config.expire,
+        config.minimum
     )
 }
