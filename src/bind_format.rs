@@ -1,7 +1,15 @@
-use crate::yaml_format::{Configuration, Record};
-use std::fmt::{Error, Write};
+use crate::{
+    ip_address::{format_v4, format_v6},
+    yaml_format::{Configuration, Record},
+};
+use anyhow::Result;
+use std::{
+    fmt::Write,
+    net::{Ipv4Addr, Ipv6Addr},
+    str::FromStr,
+};
 
-pub fn config_to_zone(config: Configuration) -> Result<String, Error> {
+pub fn config_to_zone(config: Configuration) -> Result<String> {
     // First, some BIND-specific configuration.
     let mut contents = format!("$ORIGIN {}.\n", config.domain_name);
 
@@ -13,16 +21,41 @@ pub fn config_to_zone(config: Configuration) -> Result<String, Error> {
 
     // Next, we'll synthesize all record types.
     for record in config.records.iter() {
-        write!(contents, "{}", &spit_out_record(record, global_ttl)?)?;
+        write!(
+            contents,
+            "{}",
+            &spit_out_record(record, &config.domain_name, global_ttl)?
+        )?;
     }
 
     Ok(contents)
 }
 
-pub fn spit_out_record(record: &Record, global_ttl: u32) -> Result<String, Error> {
-    let mut contents = "".to_string();
-    let name = &record.name;
+fn determine_record_name(record: &Record, domain_name: &String) -> Result<String> {
+    // We'll have to synthesize a base name from three sources:
+    //  - `name`, as a subdomain
+    //  - `ip4`, as a partial IPv4 segment
+    //  - `ip6`, as a partial IPv6 segment
+    if let Some(record_name) = &record.name {
+        Ok(record_name.to_string())
+    } else if let Some(ip4) = &record.ip4 {
+        let parsed_v4 = Ipv4Addr::from_str(ip4)?;
+        let name: String = format_v4(parsed_v4, domain_name)?;
+        Ok(name.to_string())
+    } else if let Some(ip6) = &record.ip6 {
+        let parsed_v6 = Ipv6Addr::from_str(ip6)?;
+        let name: String = format_v6(parsed_v6, domain_name)?;
+        Ok(name.to_string())
+    } else {
+        panic!("No subdomain, IPv4 address, or IPv6 address was specified for a record!");
+    }
+}
+
+pub fn spit_out_record(record: &Record, domain_name: &String, global_ttl: u32) -> Result<String> {
+    let name = determine_record_name(record, domain_name)?;
     let ttl = record.ttl.unwrap_or(global_ttl);
+
+    let mut contents = "".to_string();
 
     // First, handle A and AAAA records.
     for a_record in &record.a {

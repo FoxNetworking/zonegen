@@ -4,6 +4,7 @@ use yaml_format::Configuration;
 use crate::bind_format::config_to_zone;
 
 mod bind_format;
+mod ip_address;
 mod yaml_format;
 
 fn main() {

@@ -51,9 +51,12 @@ fn cfg_default_minimum() -> u32 {
 
 #[derive(Deserialize)]
 pub struct Record {
-    // name is our only mandatory key.
+    // Having a subdomain (`name`) or a base IP address (`ip4`, `ip6`) are our only mandatory keys.
     // The other remain optional, and are validated after deserialization.
-    pub name: String,
+    pub name: Option<String>,
+    pub ip4: Option<String>,
+    pub ip6: Option<String>,
+
     // Juuuust in case.
     pub ttl: Option<u32>,
 
