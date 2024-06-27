@@ -6,7 +6,7 @@ use std::{
 
 pub fn format_v4(address: Ipv4Addr, base_domain: &String) -> Result<String> {
     // First, let's ensure that our base domain actually is in-addr.arpa.
-    if !base_domain.ends_with("in-addr.arpa") {
+    if !base_domain.ends_with(".in-addr.arpa") {
         panic!("Base domain for IPv4 record does not end with in-addr!")
     }
 
@@ -30,7 +30,7 @@ pub fn format_v4(address: Ipv4Addr, base_domain: &String) -> Result<String> {
 
 pub fn format_v6(address: Ipv6Addr, base_domain: &String) -> Result<String> {
     // First, let's ensure that our base domain actually is ip6.arpa.
-    if !base_domain.ends_with("ip6.arpa") {
+    if !base_domain.ends_with(".ip6.arpa") {
         panic!("Base domain for IPv6 record does not end with ip6.arpa!")
     }
 
