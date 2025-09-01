@@ -1,42 +1,53 @@
 ttl: 3600
-primary_nameserver: 'ns1.example.com'
-email: 'hostmaster@example.com'
-serial: 2024011201 
+primary_nameserver: ns1.example.net
+email: hostmaster@example.com
+serial: 2024011201
 domain_name: example.com
 
 records:
-  - name: 'barkbark'
+  # @ is allowed for specifying the root.
+  - name: '@'
     a:
-      - 1.1.1.1    
-  - name: 'blahblah'
+      - 198.51.100.5
     aaaa:
-      - '2001:db8::1'
-  - name: 'cawcaw'
+      - 2001:db8::f00d
     caa:
       - flags: 0
-        tag: "issue"
-        ca_domain_name: "sectigo.com"
-  - name: "meowmeow"
-    cname:
-      - "google.com"
-  - name: "blubblub"
+        tag: issue
+        ca_domain_name: letsencrypt.org
     mx:
       - priority: 10
-        mail_server: 'mail.example.com'
-  - name: 'tweetweet'
-    ns:
-      - 'ns1.example.com'
-  - name: 'cluckcluck'
-    ptr:
-      - 'reverse.example.net'
-  - name: 'trottrot'
+        mail_server: server1.example.com
+    # You can write your lists differently.
+    ns: [ ns1.example.com, ns2.example.com ]
+    txt:
+      - "v=spf1 mx -all"
+
+  - name: mail
+    cname:
+      - server1.example.com
+
+  - name: server1
+    a:
+      - 198.51.100.5
+    aaaa:
+      - 2001:db8::f00d
+
+  - name: gaming
     srv:
-      - service: "_minecraft"
-        protocol: "_tcp"
+      - service: _minecraft
+        protocol: _tcp
         priority: 10
         weight: 10
-        port: 25566
-        target: "direct.example.net"
-  - name: "oinkoink"
-    txt:
-      - "Hello, world!"
+        port: 25567
+        target: server1.example.net
+
+# Reverse zones allow for usage of "ip4" and "ip6" instead of "name"
+#  - ip4: '198.51.100.5'
+#    ptr:
+#      - 'server1.example.net'
+
+#  - ip6: '2001:db8::f00d'
+#    ptr:
+#      - 'server1.example.net'
+
