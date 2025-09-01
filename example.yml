@@ -19,7 +19,7 @@ records:
       - priority: 10
         mail_server: server1.example.com
     # You can write your lists differently.
-    ns: [ ns1.example.com, ns2.example.com ]
+    ns: [ ns1.example.net, ns2.example.net ]
     txt:
       - "v=spf1 mx -all"
 
